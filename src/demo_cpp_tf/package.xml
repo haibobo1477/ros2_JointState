@@ -9,7 +9,7 @@
 
 
  <depend>rclcpp</depend>
- <depend> Eigen3</depend>
+ <depend>Eigen3</depend>
  <depend>interbotix_moveit_interface</depend>
  <depend>interbotix_moveit_interface_msgs</depend>
  <depend>moveit_core</depend>
