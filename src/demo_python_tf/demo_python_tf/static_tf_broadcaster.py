@@ -8,26 +8,28 @@ class PoseListener(Node):
     def __init__(self):
         super().__init__('ee_pose_tf_listener')
 
-        # 创建 TF2 缓冲区和监听器
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
 
-        # 设置定时器，每 0.1 秒检查一次 TF
+        # set timer, every 0.1s 
         self.timer = self.create_timer(0.1, self.lookup_transform)
 
     def lookup_transform(self):
         try:
-            # 查找从 base_link 到 ee_gripper_link 的变换
+            # check from base_link to ee_gripper_link 
             transform: TransformStamped = self.tf_buffer.lookup_transform(
-                'vx300s/base_link',              # 父坐标系
-                'vx300s/ee_gripper_link',        # 子坐标系
-                rclpy.time.Time()                # 最新时间
+                'vx300s/base_link',              # parent coordinate
+                'vx300s/ee_gripper_link',        # child coordinate
+                rclpy.time.Time()                # update time
             )
 
-            # 获取平移位置
+            # get translation and orientation
             t = transform.transform.translation
+            r = transform.transform.rotation
+            
             self.get_logger().info(
-                f"EE Pose → x: {t.x:.3f}, y: {t.y:.3f}, z: {t.z:.3f}"
+                f"EE Pose → x: {t.x:.3f}, y: {t.y:.3f}, z: {t.z:.3f},"
+                f"qx: {r.x:.3f}, qy: {r.y:.3f}, qz: {r.z:.3f}, qw: {r.w:.3f}"
             )
 
         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException) as e:
