@@ -17,7 +17,7 @@ class IKSolver(Node):
             
             
             
-        # 创建 joint_states 订阅者
+        # create joint_states sub
         self.subscription = self.create_subscription(
             JointState,
             '/vx300s/joint_states',
@@ -64,7 +64,7 @@ class IKSolver(Node):
         # request.ik_request.attempts = 5
         request.ik_request.avoid_collisions = True
 
-        # 设置目标位姿
+        # set target pose
         target_pose = PoseStamped()
         target_pose.header.frame_id = 'vx300s/base_link'
         target_pose.pose.position.x = 0.3
@@ -77,7 +77,7 @@ class IKSolver(Node):
         
         request.ik_request.pose_stamped = target_pose
 
-        # 发送请求
+        # send request
         future = self.cli.call_async(request)
         future.add_done_callback(self.handle_ik_response)
 
