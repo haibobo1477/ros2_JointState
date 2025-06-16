@@ -11,7 +11,6 @@ class IKSolver(Node):
     def __init__(self):
         super().__init__('ik_solver_client')
 
-        # 创建服务客户端
         self.cli = self.create_client(GetPositionIK, '/compute_ik')
         while not self.cli.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('wait for /compute_ik serivce available...')
@@ -30,10 +29,8 @@ class IKSolver(Node):
          # self.timer = self.create_timer(0.2, self.send_fk_request)
         self.get_logger().info('Subscribed to /vx300s/joint_states')
         
-        
-        
+             
     def joint_state_callback(self, msg: JointState):
-        # 提取关节名和角度（可根据需要过滤不相关的关节）
         joint_names = [
             'waist', 
             'shoulder', 
@@ -50,7 +47,7 @@ class IKSolver(Node):
             self.get_logger().warn(f"Missing joint: {e}")
             return
 
-        # 构造服务请求
+        # build service request
         request = GetPositionIK.Request()
         
         joint_state = JointState()
