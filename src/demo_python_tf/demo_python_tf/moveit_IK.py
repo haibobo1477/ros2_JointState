@@ -25,7 +25,6 @@ class IKSolver(Node):
             10
         )    
         
-        
          # self.timer = self.create_timer(0.2, self.send_fk_request)
         self.get_logger().info('Subscribed to /vx300s/joint_states')
         
@@ -68,8 +67,8 @@ class IKSolver(Node):
         target_pose = PoseStamped()
         target_pose.header.frame_id = 'vx300s/base_link'
         target_pose.pose.position.x = 0.3
-        target_pose.pose.position.y = 0.0
-        target_pose.pose.position.z = 0.2
+        target_pose.pose.position.y = 0.1
+        target_pose.pose.position.z = 0.5
         target_pose.pose.orientation.x = 0.0
         target_pose.pose.orientation.y = 0.0
         target_pose.pose.orientation.z = 0.0
