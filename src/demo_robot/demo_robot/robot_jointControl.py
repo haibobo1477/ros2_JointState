@@ -14,7 +14,7 @@ class ArmControllerNode(Node):
             gripper_name='gripper',
         )
         
-        self.declare_parameter('joint_positions', [-1.0, -0.2, 0.5, 0.0, -0.5, 1.57])
+        self.declare_parameter('joint_positions', [1.1982, 0.31042, -0.6712, -1.4337, 1.2233, 1.1858])
         # self.declare_parameter('joint_positions', [0.68239976, -0.62131946, 0.30138218, 1.94006179, -0.74264804, -2.05452146])
         
         

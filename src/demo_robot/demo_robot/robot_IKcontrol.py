@@ -3,7 +3,7 @@ from interbotix_xs_modules.xs_robot.arm import InterbotixManipulatorXS
 
 
 def main(args=None):
-    rclpy.init(args=args)
+    # rclpy.init(args=args)
 
     # 初始化 Interbotix Manipulator
     bot = InterbotixManipulatorXS(
@@ -15,7 +15,7 @@ def main(args=None):
     # 设置末端执行器的目标位姿 (逆运动学分析 + 执行)
     joint_positions, success = bot.arm.set_ee_pose_components(
         x=0.3,
-        y=0.1,
+        y=0.4,
         z=0.5,
         roll=0.0,
         pitch=0.0,
