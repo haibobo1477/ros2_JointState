@@ -80,7 +80,7 @@ def forward_kin(q1,q2,q3,q4,q5,q6):
   X.append(px)
   Y.append(py)
   Z.append(pz)      
-  T6g = pose(0, 0, 0, 0.07)     # good   0.1387
+  T6g = pose(0, 0, 0, 0.1387)     # good   0.07
   #final position and rotation
   T0g = T0g* T6g
   px,py,pz = T0g[0,3], T0g[1,3], T0g[2,3]
@@ -218,7 +218,7 @@ def get_cosine_law_angle(a, b, c):
   return gamma
 
 
-def get_wrist_center(gripper_point, R0g, dg = 0.07):   ## dg = 0.1387
+def get_wrist_center(gripper_point, R0g, dg = 0.1387):   ## dg = 0.07
   # get the coordinates of the wrist center wrt to the base frame (xw, yw, zw)
   # given the following info:
   # the coordinates of the gripper (end effector) (x, y, z)
@@ -354,7 +354,7 @@ def get_angles(x, y, z, roll, pitch, yaw):
   R0u_eval = R0u.evalf(subs = {alpha: yaw, beta: pitch, gamma: roll})
   R0g_eval = R0u_eval * RguT_eval
 
-  wrist_center = get_wrist_center(gripper_point, R0g_eval, dg = 0.07)    # dg = 0.1387
+  wrist_center = get_wrist_center(gripper_point, R0g_eval, dg = 0.1387)    # dg = 0.07
 
   j1, j2, j3 = get_first_three_angles(wrist_center)
 
@@ -374,9 +374,9 @@ def get_angles(x, y, z, roll, pitch, yaw):
 
 
 def main():
-        px, py, pz = 0.4, 0.2, 0.4
+        px, py, pz = 0.6, 0.06, 0.059
         #px, py, pz = 0.49792, 1.3673, 2.4988
-        roll, pitch, yaw = 0.2, 0.0, 0.0
+        roll, pitch, yaw = 2.9, 1.2, 1.5
         #roll, pitch, yaw = 0.366, -0.078, 2.561
         q1,q2,q3,q4,q5,q6 = get_angles(px,py,pz,roll,pitch,yaw)
         print("q1 : ",q1)
