@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'jacobian_node=demo_Velocity.robot_jac:main'
+            'jacobian_node=demo_Velocity.robot_jac:main',
+            'dance_node=demo_Velocity.test_traj:main'
         ],
     },
 )
