@@ -23,7 +23,8 @@ setup(
             'static_tf_broadcaster=demo_python_tf.static_tf_broadcaster:main',
             'tf_listener=demo_python_tf.tf_listener:main',
             'moveit_client=demo_python_tf.moveit_FK:main',
-            'moveit_client_IK=demo_python_tf.moveit_IK:main'
+            'moveit_client_IK=demo_python_tf.moveit_IK:main',
+            'get_angles=demo_python_tf.get_angle:main'
         ],
     },
 )

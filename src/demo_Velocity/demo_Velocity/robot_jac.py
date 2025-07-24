@@ -30,6 +30,9 @@ class FrameListener(Node):
     self.linear_vel_list = []
     self.angular_vel_list = []
     
+    self.linear_error_list = []
+    self.angular_error_list = []
+    
     
     self.declare_parameter('target_frame', 'vx300s/ee_gripper_link')
     self.target_frame = self.get_parameter(
@@ -124,10 +127,10 @@ class FrameListener(Node):
       #   f"Angular → [{ang_vel[0]:.3f}, {ang_vel[1]:.3f}, {ang_vel[2]:.3f}]"
       # )
       
-      # 获取当前时间戳（相对于启动时间）
     # current_time = self.get_clock().now().nanoseconds / 1e9 - self.ti
+    current_time = self.get_clock().now().nanoseconds / 1e9 - self.ti
 
-      # 存储数据用于绘图
+    # plot
     # self.time_list.append(current_time)
     # self.linear_vel_list.append(trans_vel.tolist())
     # self.angular_vel_list.append(ang_vel.tolist())
@@ -139,19 +142,12 @@ class FrameListener(Node):
     self.J = mr.JacobianSpace(self.Slist, self.angles)
     vel_from_jac = self.J @ self.joint_velocities
     
-                            # np.array([[a_msg.cmd[0]],
-                            #           [a_msg.cmd[1]],
-                            #           [a_msg.cmd[2]],
-                            #           [a_msg.cmd[3]],
-                            #           [a_msg.cmd[4]],
-                            #           [a_msg.cmd[5]]])
-
-  
-       # Jacobian 推导的 twist
+                
+       # Jacobian to twist
     vel_jac_trans = vel_from_jac[0:3].flatten()
     vel_jac_ang = vel_from_jac[3:6].flatten()
 
-      # twist 误差
+      # twist error
     err_linear = trans_vel - vel_jac_trans
     err_angular = ang_vel - vel_jac_ang
       
@@ -164,11 +160,20 @@ class FrameListener(Node):
     vel_err_msg.angular.y = err_angular[1]
     vel_err_msg.angular.z = err_angular[2]
     
-    # 打印误差信息
-    # self.get_logger().info(
-    #      f"[Twist Error] Linear: x={err_linear[0]:.4f}, y={err_linear[1]:.4f}, z={err_linear[2]:.4f} | "
-    #      f"Angular: x={err_angular[0]:.4f}, y={err_angular[1]:.4f}, z={err_angular[2]:.4f}"
-    # )
+    
+    self.get_logger().info(
+         f"[Twist Error] Linear: x={err_linear[0]:.4f}, y={err_linear[1]:.4f}, z={err_linear[2]:.4f} | "
+         f"Angular: x={err_angular[0]:.4f}, y={err_angular[1]:.4f}, z={err_angular[2]:.4f}"
+    )
+    
+    
+    
+
+    
+    self.time_list.append(current_time)
+    self.linear_error_list.append(err_linear.tolist())
+    self.angular_error_list.append(err_angular.tolist())
+    
     
     self.publisher_vel_err.publish(vel_err_msg)
     
@@ -207,47 +212,47 @@ class FrameListener(Node):
                                           data.velocity[4],
                                           data.velocity[5]])
         
-         # 可选：打印验证
-        self.get_logger().info(
-        f"Joint positions: {np.round(self.angles, 3)} | Velocities: {np.round(self.angular_velocities, 3)}"
-         )
+        # self.get_logger().info(
+        # f"Joint positions: {np.round(self.angles, 3)} | Velocities: {np.round(self.joint_velocities, 3)}"
+        #  )
          
+  
+  
   def plot_twist_data(self):
-    
     time = self.time_list
-    linear = np.array(self.linear_vel_list)  # shape: [N, 3]
-    angular = np.array(self.angular_vel_list)
-
-    plt.figure(figsize=(12, 6))
+    linear_err = np.array(self.linear_error_list)
+    angular_err = np.array(self.angular_error_list)
     
     if len(self.time_list) == 0:
-      print("No data to plot.")
-      return
-    else:
-      # Linear velocity
-      plt.subplot(2, 1, 1)
-      plt.plot(time, linear[:, 0], label='Vx')
-      plt.plot(time, linear[:, 1], label='Vy')
-      plt.plot(time, linear[:, 2], label='Vz')
-      plt.ylabel("Linear Velocity (m/s)")
-      plt.title("End-effector Linear and Angular Velocity")
-      plt.legend()
-      plt.grid()
+        print("No error data to plot.")
+        return
 
-  # Angular velocity
-      plt.subplot(2, 1, 2)
-      plt.plot(time, angular[:, 0], label='Wx')
-      plt.plot(time, angular[:, 1], label='Wy')
-      plt.plot(time, angular[:, 2], label='Wz')
-      plt.xlabel("Time (s)")
-      plt.ylabel("Angular Velocity (rad/s)")
-      plt.legend()
-      plt.grid()
+    plt.figure(figsize=(12, 6))
 
-      plt.tight_layout()
-      plt.savefig("ee_twist_plot.png")
-      plt.show()
     
+    plt.subplot(2, 1, 1)
+    plt.plot(time, linear_err[:, 0], label='Error Vx')
+    plt.plot(time, linear_err[:, 1], label='Error Vy')
+    plt.plot(time, linear_err[:, 2], label='Error Vz')
+    plt.ylabel("Linear Velocity Error (m/s)")
+    plt.title("Twist Error: Linear and Angular")
+    plt.legend()
+    plt.grid()
+
+    
+    plt.subplot(2, 1, 2)
+    plt.plot(time, angular_err[:, 0], label='Error Wx')
+    plt.plot(time, angular_err[:, 1], label='Error Wy')
+    plt.plot(time, angular_err[:, 2], label='Error Wz')
+    plt.xlabel("Time (s)")
+    plt.ylabel("Angular Velocity Error (rad/s)")
+    plt.legend()
+    plt.grid()
+
+    plt.tight_layout()
+    plt.savefig("twist_error_plot.png")
+    plt.show()
+
     
 
 
@@ -258,7 +263,7 @@ def main(args=None):
     rclpy.spin(frame_listener_node)
   except KeyboardInterrupt:
     print("Shutting down... plotting results.")
-    # frame_listener_node.plot_twist_data()
+    frame_listener_node.plot_twist_data()
     frame_listener_node.destroy_node()
   rclpy.shutdown()
 
@@ -268,3 +273,38 @@ if __name__ == '__main__':
 
 
 
+# def plot_twist_data(self):
+    
+  #   time = self.time_list
+  #   linear = np.array(self.linear_vel_list)  # shape: [N, 3]
+  #   angular = np.array(self.angular_vel_list)
+
+  #   plt.figure(figsize=(12, 6))
+    
+  #   if len(self.time_list) == 0:
+  #     print("No data to plot.")
+  #     return
+  #   else:
+  #     # Linear velocity
+  #     plt.subplot(2, 1, 1)
+  #     plt.plot(time, linear[:, 0], label='Vx')
+  #     plt.plot(time, linear[:, 1], label='Vy')
+  #     plt.plot(time, linear[:, 2], label='Vz')
+  #     plt.ylabel("Linear Velocity (m/s)")
+  #     plt.title("End-effector Linear and Angular Velocity")
+  #     plt.legend()
+  #     plt.grid()
+
+  # # Angular velocity
+  #     plt.subplot(2, 1, 2)
+  #     plt.plot(time, angular[:, 0], label='Wx')
+  #     plt.plot(time, angular[:, 1], label='Wy')
+  #     plt.plot(time, angular[:, 2], label='Wz')
+  #     plt.xlabel("Time (s)")
+  #     plt.ylabel("Angular Velocity (rad/s)")
+  #     plt.legend()
+  #     plt.grid()
+
+  #     plt.tight_layout()
+  #     plt.savefig("ee_twist_plot.png")
+  #     plt.show()
